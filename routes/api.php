@@ -69,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // ✅ Route pour obtenir les chauffeurs à proximité
     Route::get('/drivers/nearby', [DriverController::class, 'getNearbyDrivers'])->name('api.drivers.nearby');
 });
+Route::get('/w/nearby', [DriverController::class, 'getNearbyDrivers'])->name('api.drivers.nearbyw');
 
 // 🟢 Route publique pour mettre à jour la position des chauffeurs (sans authentification)
 Route::post('/chauffeurs/update-location', function (Request $request) {

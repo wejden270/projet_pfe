@@ -27,5 +27,5 @@ return [
 
     'max_age' => 0, // Définir le délai de mise en cache des résultats CORS (en secondes). À 0, cela signifie que les résultats ne sont pas mis en cache.
 
-    'supports_credentials' => true, // Définir sur `true` si vous utilisez des cookies ou des sessions avec votre API
+    'supports_credentials' => false, // Définir sur `true` si vous utilisez des cookies ou des sessions avec votre API
 ];

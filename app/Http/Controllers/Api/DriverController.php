@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -60,10 +60,12 @@ class DriverController extends Controller
 
         $radius = 50; // Rayon en km
 
+
+
         $drivers = Driver::selectRaw(
-            "id, name, email, latitude, longitude, status, 
-            (6371 * acos(cos(radians(?)) * cos(radians(latitude)) 
-            * cos(radians(longitude) - radians(?)) 
+            "id, name, email, latitude, longitude, status,
+            (6371 * acos(cos(radians(?)) * cos(radians(latitude))
+            * cos(radians(longitude) - radians(?))
             + sin(radians(?)) * sin(radians(latitude)))) AS distance",
             [$request->latitude, $request->longitude, $request->latitude]
         )
@@ -168,23 +170,24 @@ class DriverController extends Controller
     // ✅ Récupérer le profil du chauffeur connecté
     public function profile($id)
     {
+        echo("hello");
         // Récupère le chauffeur par son ID
         $driver = Driver::find($id);
-    
+
         if (!$driver) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Chauffeur non trouvé'
             ], 404);
         }
-    
+
         return response()->json([
             'status' => 'success',
             'message' => 'Profil du chauffeur',
             'data' => $driver
         ]);
     }
-    
+
 
 
     // ✅ Récupérer les missions en cours du chauffeur
