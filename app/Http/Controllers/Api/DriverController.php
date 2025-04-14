@@ -67,9 +67,9 @@ class DriverController extends Controller
             (6371 * acos(cos(radians(?)) * cos(radians(latitude))
             * cos(radians(longitude) - radians(?))
             + sin(radians(?)) * sin(radians(latitude)))) AS distance",
-            [$request->latitude, $request->longitude, $request->latitude]
+            [floatval($request->latitude), floatval($request->longitude), floatval($request->latitude)]
         )
-        ->having("distance", "<=", $radius)
+        // ->having("distance", "<=", $radius)
         ->where('status', 'disponible')
         ->orderBy("distance", "asc")
         ->get();
@@ -77,7 +77,10 @@ class DriverController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Chauffeurs disponibles à proximité',
-            'data' => $drivers
+            'data' => $drivers,
+            'inputLatitude' => $request->latitude,
+            'inputLongitude' => $request->longitude,
+
         ]);
     }
 

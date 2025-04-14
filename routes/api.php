@@ -78,7 +78,8 @@ Route::post('/chauffeurs/update-location', function (Request $request) {
     if (!$driver) {
         return response()->json(['error' => 'Chauffeur non trouvé'], 404);
     }
-
+    echo($request->latitude);
+    echo($request->longitude);
     $driver->latitude = $request->latitude;
     $driver->longitude = $request->longitude;
     $driver->save();
