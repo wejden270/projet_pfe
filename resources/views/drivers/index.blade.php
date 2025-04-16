@@ -11,6 +11,13 @@
     <div class="container mt-5">
         <h2>Drivers List</h2>
 
+        <!-- ✅ Affichage du message de succès -->
+        @if(session('success'))
+            <div class="alert alert-success mt-3">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <a href="{{ route('drivers.create') }}" class="btn btn-primary mb-3">Add Driver</a>
 
         <table class="table table-bordered">
@@ -42,14 +49,14 @@
 
         function fetchDrivers() {
             $.ajax({
-                url: "{{ url('/api/drivers') }}", // L'URL de ton API
+                url: "{{ url('/api/drivers') }}",
                 type: "GET",
                 dataType: "json",
                 success: function(response) {
                     if (response.status === "success") {
                         let drivers = response.data;
                         let tableBody = $("#drivers-table-body");
-                        tableBody.empty(); // Vide le tableau avant d'ajouter les données
+                        tableBody.empty();
 
                         drivers.forEach(driver => {
                             let row = `

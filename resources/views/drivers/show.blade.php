@@ -1,28 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header">
-            <h2>Détails du chauffeur</h2>
+<div class="container mt-5">
+    <h2 class="mb-4" style="font-weight: bold;">Chauffeur Details</h2>
+
+    @if(isset($driver))
+        <p><strong>Name:</strong> {{ $driver->name }}</p>
+        <p><strong>Email:</strong> {{ $driver->email }}</p>
+        <p><strong>Phone:</strong> {{ $driver->phone ?? 'Not provided' }}</p>
+    @else
+        <div class="alert alert-danger text-center">
+            🚨 Chauffeur not found.
         </div>
-        <div class="card-body">
-            @if(isset($driver))
-                <div class="mb-3">
-                    <strong>Nom :</strong> {{ $driver->name }}
-                </div>
-                <div class="mb-3">
-                    <strong>Email :</strong> {{ $driver->email }}
-                </div>
-            @else
-                <div class="alert alert-danger">
-                    Chauffeur introuvable.
-                </div>
-            @endif
-        </div>
-        <div class="card-footer">
-            <a href="{{ route('drivers.index') }}" class="btn btn-secondary">Retour</a>
-        </div>
-    </div>
+    @endif
+
+    <a href="{{ route('drivers.index') }}" class="btn btn-secondary mt-3">Back</a>
 </div>
 @endsection

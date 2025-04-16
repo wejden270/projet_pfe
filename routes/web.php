@@ -9,6 +9,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Api\DriverController; // Mise à jour du namespace
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DriverAuthController;
 
 // Route par défaut pour rediriger vers la page de connexion admin
 Route::get('/', function () {
@@ -41,3 +43,8 @@ Route::middleware('auth:admin')->group(function () {
 
 // Route pour la page d'accueil après connexion
 Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth:admin');
+// ✅ Déconnexion utilisateur (publique)
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// ✅ Déconnexion chauffeur (publique)
+Route::post('/driver/logout', [DriverAuthController::class, 'logout'])->name('driver.logout');

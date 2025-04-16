@@ -90,3 +90,7 @@ Route::post('/chauffeurs/update-location', function (Request $request) {
 // 🟢 Route publique pour récupérer les informations d'un chauffeur spécifique par ID
 Route::get('/driver/{id}/profile', [DriverController::class, 'profile'])->name('api.driver.profile.byId');
 Route::post('/getChauffeursProches', [DriverController::class, 'getNearbyDrivers']);
+//route publique pour récupérer les chauffeurs
+Route::get('/drivers', [DriverController::class, 'index'])->name('api.drivers.index');
+//route public pour supprimer un chauffeur
+Route::delete('/drivers/{id}', [DriverController::class, 'destroy'])->name('api.drivers.destroy');

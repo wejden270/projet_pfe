@@ -26,6 +26,11 @@
             </div>
 
             <div class="form-group">
+                <label for="phone">Téléphone :</label> <!-- 🔹 Ajout du champ téléphone -->
+                <input type="text" name="phone" id="phone" class="form-control" value="{{ old('phone') }}" required>
+            </div>
+
+            <div class="form-group">
                 <label for="password">Mot de passe :</label>
                 <input type="password" name="password" id="password" class="form-control" required>
             </div>

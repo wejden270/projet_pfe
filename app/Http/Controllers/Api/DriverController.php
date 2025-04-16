@@ -8,20 +8,91 @@ use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+
 
 class DriverController extends Controller
 {
     // ✅ Afficher la liste des chauffeurs
-    public function index()
+    public function index(Request $request)
     {
         $drivers = Driver::all();
 
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'Liste des chauffeurs',
+        //     'data' => $drivers
+        // ]);
+
+    // 🔹 Vérifier si c'est une requête API
+    if ($request->wantsJson()) {
         return response()->json([
             'status' => 'success',
             'message' => 'Liste des chauffeurs',
             'data' => $drivers
         ]);
     }
+
+    // 🔹 Si ce n'est pas une requête API, retourne la vue normale
+    return view('drivers.index', compact('drivers'));
+    }
+
+    public function create()
+{
+    return view('drivers.create'); // Assure-toi que `create.blade.php` existe
+}
+
+public function store(Request $request)
+{
+    // 🔹 Valider les champs
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:drivers,email',
+        'phone' => 'required|string|max:20',
+        'password' => 'required|min:6|confirmed'
+    ]);
+
+    $driver = Driver::create([
+        'name' => $validatedData['name'],
+        'email' => $validatedData['email'],
+        'phone' => $validatedData['phone'],
+        'password' => Hash::make($validatedData['password'])
+    ]);
+
+    return redirect()->route('drivers.index')->with('success', 'Chauffeur ajouté avec succès !');
+}
+
+public function show($id)
+{
+    $driver = Driver::find($id);
+
+    if (!$driver) {
+        return redirect()->route('drivers.index')->with('error', 'Chauffeur non trouvé.');
+    }
+
+    return view('drivers.show', compact('driver'));
+}
+
+// ✅ Supprimer un chauffeur
+public function destroy($id)
+{
+    $driver = Driver::find($id);
+
+    if (!$driver) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Chauffeur non trouvé'
+        ], 404);
+    }
+
+    $driver->delete();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Chauffeur supprimé avec succès'
+    ]);
+}
+
 
     // ✅ Mettre à jour la position d’un chauffeur
     public function updateLocation(Request $request)
@@ -173,7 +244,7 @@ class DriverController extends Controller
     // ✅ Récupérer le profil du chauffeur connecté
     public function profile($id)
     {
-        echo("hello");
+        //echo("hello");
         // Récupère le chauffeur par son ID
         $driver = Driver::find($id);
 
