@@ -1,13 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Locations</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Locations</h1>
-        <a href="{{ route('locations.create') }}" class="btn btn-primary mb-3">Add Location</a>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Locations List</h2>
+            <div>
+                <a href="/index.html" class="btn btn-secondary mr-2">
+                    <i class="fas fa-home"></i> Main Dashboard
+                </a>
+                <a href="{{ route('locations.create') }}" class="btn btn-primary">Add Location</a>
+            </div>
+        </div>
 
         @if(session('success'))
             <div class="alert alert-success">

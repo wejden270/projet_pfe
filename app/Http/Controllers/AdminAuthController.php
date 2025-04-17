@@ -5,6 +5,10 @@ use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Car;
+use App\Models\User;
+use App\Models\Driver;
+use App\Models\Incident;
 
 class AdminAuthController extends Controller
 {
@@ -34,27 +38,45 @@ class AdminAuthController extends Controller
     }
 
     public function register(Request $request)
-{
-    $this->validate($request, [
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:admins',
-        'password' => 'required|string|min:8|confirmed',
-    ]);
+    {
+        $this->validate($request, [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:admins',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
-    $admin = Admin::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-    ]);
+        $admin = Admin::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
 
-    Auth::guard('admin')->login($admin);
+        Auth::guard('admin')->login($admin);
 
-    return redirect()->intended('/');
-}
+        return redirect()->intended('/');
+    }
 
     public function logout()
     {
         Auth::guard('admin')->logout();
         return redirect('/');
+    }
+
+    public function dashboard()
+    {
+        $data = [
+            'totalCars' => Car::count(),
+            'activeIncidents' => Incident::where('status', 'active')->count(),
+            'totalDrivers' => Driver::count(),
+            'totalUsers' => User::count(),
+            'recentIncidents' => Incident::latest()->take(6)->get(),
+            'carStatuses' => [
+                'available' => Car::where('status', 'available')->count(),
+                'intervention' => Car::where('status', 'intervention')->count(),
+                'maintenance' => Car::where('status', 'maintenance')->count(),
+            ]
+        ];
+
+        return view('admin.dashboard', $data);
     }
 }

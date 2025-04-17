@@ -6,8 +6,15 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Cars</h1>
-        <a href="{{ route('cars.create') }}" class="btn btn-primary mb-3">Add Car</a>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Cars List</h2>
+            <div>
+                <a href="/index.html" class="btn btn-secondary mr-2">
+                    <i class="fas fa-home"></i> Main Dashboard
+                </a>
+                <a href="{{ route('cars.create') }}" class="btn btn-primary">Add Car</a>
+            </div>
+        </div>
         <table class="table">
             <thead>
                 <tr>

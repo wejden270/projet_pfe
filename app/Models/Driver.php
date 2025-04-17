@@ -13,6 +13,8 @@ class Driver extends Authenticatable
 {
     use HasFactory, HasApiTokens, Notifiable;
 
+    protected $table = 'drivers'; // Assurez-vous que votre table est bien définie
+
     protected $fillable = [
         'name',
         'email',

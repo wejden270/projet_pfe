@@ -11,6 +11,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Api\DriverController; // Mise à jour du namespace
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DriverAuthController;
+use App\Http\Controllers\AdminController;
 
 // Route par défaut pour rediriger vers la page de connexion admin
 Route::get('/', function () {

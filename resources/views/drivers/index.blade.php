@@ -9,7 +9,15 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h2>Drivers List</h2>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Drivers List</h2>
+            <div>
+                <a href="/index.html" class="btn btn-secondary mr-2">
+                    <i class="fas fa-home"></i> Main Dashboard
+                </a>
+                <a href="{{ route('drivers.create') }}" class="btn btn-primary">Add Driver</a>
+            </div>
+        </div>
 
         <!-- ✅ Affichage du message de succès -->
         @if(session('success'))
@@ -17,8 +25,6 @@
                 {{ session('success') }}
             </div>
         @endif
-
-        <a href="{{ route('drivers.create') }}" class="btn btn-primary mb-3">Add Driver</a>
 
         <table class="table table-bordered">
             <thead>
