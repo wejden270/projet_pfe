@@ -23,7 +23,9 @@ class Driver extends Authenticatable
         'photo',
         'latitude',
         'longitude',
-        'status'
+        'status',
+        'model',          // Type de véhicule du chauffeur
+        'license_plate'   // Numéro d'immatriculation du véhicule
     ];
 
     protected $hidden = [

@@ -26,8 +26,27 @@
             </div>
 
             <div class="form-group">
-                <label for="phone">Téléphone :</label> <!-- 🔹 Ajout du champ téléphone -->
-                <input type="text" name="phone" id="phone" class="form-control" value="{{ old('phone') }}" required>
+                <label for="phone">Téléphone</label>
+                <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}">
+                @error('phone')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="model">Modèle du véhicule</label>
+                <input type="text" class="form-control @error('model') is-invalid @enderror" id="model" name="model" value="{{ old('model') }}">
+                @error('model')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="license_plate">Immatriculation</label>
+                <input type="text" class="form-control @error('license_plate') is-invalid @enderror" id="license_plate" name="license_plate" value="{{ old('license_plate') }}">
+                @error('license_plate')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">

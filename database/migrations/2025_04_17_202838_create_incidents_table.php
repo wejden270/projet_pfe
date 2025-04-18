@@ -6,22 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateIncidentsTable extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::create('incidents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('car_id')->constrained()->onDelete('cascade');
-            $table->json('location')->nullable(); // Stocke la latitude et la longitude
+            // rendre driver_id nullable pour respecter la contrainte ON DELETE SET NULL
+            $table->foreignId('driver_id')
+                  ->nullable() // Ajouter nullable ici
+                  ->constrained('drivers')
+                  ->onDelete('set null');
             $table->text('description');
-            $table->string('status')->default('open');
+            $table->dateTime('occurred_at')->nullable();
             $table->timestamps();
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('incidents');
     }
 }
-

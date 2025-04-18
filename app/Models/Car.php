@@ -10,12 +10,12 @@ class Car extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'make', 'model', 'year', 'license_plate', 'current_location', 'status',
+        'driver_id', 'make', 'model', 'year', 'license_plate', 'current_location', 'status',
     ];
 
-    public function user()
+    public function driver()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Driver::class);
     }
 
     public function incidents()

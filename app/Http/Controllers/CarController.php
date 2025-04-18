@@ -2,7 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Car;
-use App\Models\User;
+use App\Models\Driver;
 use Illuminate\Http\Request;
 
 class CarController extends Controller
@@ -15,14 +15,14 @@ class CarController extends Controller
 
     public function create()
     {
-        $users = User::all(); // Récupérez tous les utilisateurs pour les passer à la vue
-        return view('cars.create', compact('users'));
+        $drivers = Driver::all(); // Récupérer les chauffeurs au lieu des utilisateurs
+        return view('cars.create', compact('drivers'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'driver_id' => 'required|exists:drivers,id',
             'make' => 'required',
             'model' => 'required',
             'year' => 'required|integer',

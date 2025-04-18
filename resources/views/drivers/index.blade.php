@@ -33,12 +33,29 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
+                    <th>Model</th>  <!-- Nouvelle colonne -->
+                    <th>License Plate</th>  <!-- Nouvelle colonne -->
                     <th>Date Created</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="drivers-table-body">
-                <!-- Les données seront insérées ici -->
+                @foreach($drivers as $driver)
+                <tr>
+                    <td>{{ $driver->id }}</td>
+                    <td>{{ $driver->name }}</td>
+                    <td>{{ $driver->email }}</td>
+                    <td>{{ $driver->phone ? $driver->phone : 'Non renseigné' }}</td>
+                    <td>{{ $driver->model ? $driver->model : 'Non spécifié' }}</td>  <!-- Nouvelle cellule -->
+                    <td>{{ $driver->license_plate ? $driver->license_plate : 'Non spécifié' }}</td>  <!-- Nouvelle cellule -->
+                    <td>{{ $driver->created_at ? $driver->created_at->format('d/m/Y') : '' }}</td>
+                    <td>
+                        <a href="/drivers/{{ $driver->id }}" class="btn btn-info">View</a>
+                        <a href="/drivers/{{ $driver->id }}/edit" class="btn btn-warning">Edit</a>
+                        <button onclick="deleteDriver({{ $driver->id }})" class="btn btn-danger">Delete</button>
+                    </td>
+                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
@@ -71,7 +88,9 @@
                                     <td>${driver.name}</td>
                                     <td>${driver.email}</td>
                                     <td>${driver.phone ? driver.phone : 'Non renseigné'}</td>
-                                    <td>${new Date(driver.created_at).toLocaleDateString()}</td>
+                                    <td>${driver.model ? driver.model : 'Non spécifié'}</td>  <!-- Nouvelle cellule -->
+                                    <td>${driver.license_plate ? driver.license_plate : 'Non spécifié'}</td>  <!-- Nouvelle cellule -->
+                                    <td>${driver.created_at ? new Date(driver.created_at).toLocaleDateString() : ''}</td>
                                     <td>
                                         <a href="/drivers/${driver.id}" class="btn btn-info">View</a>
                                         <a href="/drivers/${driver.id}/edit" class="btn btn-warning">Edit</a>

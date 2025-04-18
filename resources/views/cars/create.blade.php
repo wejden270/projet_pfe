@@ -10,12 +10,18 @@
         <form action="{{ route('cars.store') }}" method="POST">
             @csrf
             <div class="form-group">
-                <label for="user_id">User</label>
-                <select class="form-control" id="user_id" name="user_id" required>
-                    @foreach($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                <label for="driver_id">Chauffeur</label>
+                <select name="driver_id" id="driver_id" class="form-control @error('driver_id') is-invalid @enderror">
+                    <option value="">Sélectionner un chauffeur</option>
+                    @foreach($drivers as $driver)
+                        <option value="{{ $driver->id }}" {{ old('driver_id') == $driver->id ? 'selected' : '' }}>
+                            {{ $driver->name }}
+                        </option>
                     @endforeach
                 </select>
+                @error('driver_id')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
             </div>
             <div class="form-group">
                 <label for="make">Make</label>

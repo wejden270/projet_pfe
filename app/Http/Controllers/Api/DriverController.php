@@ -49,7 +49,9 @@ public function store(Request $request)
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:drivers,email',
         'phone' => 'required|string|max:20',
-        'password' => 'required|min:6|confirmed'
+        'password' => 'required|min:6|confirmed',
+        'model' => 'required|string|max:255',
+        'license_plate' => 'required|string|max:20'
     ]);
 
     $driver = Driver::create([
@@ -312,5 +314,30 @@ public function destroy($id)
             'message' => 'Photo mise à jour avec succès.',
             'data' => $driver
         ]);
+    }
+
+    public function edit($id)
+    {
+        $driver = Driver::findOrFail($id);
+        return view('drivers.edit', compact('driver'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $driver = Driver::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:drivers,email,' . $id,
+            'phone' => 'nullable|string|max:20|unique:drivers,phone,' . $id,
+            'status' => 'required|in:disponible,occupé,en mission',
+            'model' => 'nullable|string|max:255',
+            'license_plate' => 'nullable|string|max:255'
+        ]);
+
+        $driver->update($validatedData);
+
+        return redirect()->route('drivers.index')
+            ->with('success', 'Chauffeur mis à jour avec succès');
     }
 }

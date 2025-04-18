@@ -23,6 +23,8 @@ class DriverAuthController extends Controller
             'email' => 'required|string|email|max:255|unique:drivers,email',
             'phone' => 'nullable|string|max:20|unique:drivers,phone',
             'password' => 'required|string|min:6|confirmed',
+            'model' => 'nullable|string|max:255',
+            'license_plate' => 'nullable|string|max:255'
         ]);
 
         // Retourner les erreurs de validation
@@ -40,6 +42,8 @@ class DriverAuthController extends Controller
                 'phone' => $request->phone ?? null,
                 'password' => Hash::make($request->password),
                 'status' => 'disponible', // 🚗 Nouveau chauffeur démarre comme "disponible"
+                'model' => $request->model,           // Ajout du modèle du véhicule
+                'license_plate' => $request->license_plate  // Ajout de la plaque d'immatriculation
             ]);
 
             if (!$driver) {
