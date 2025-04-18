@@ -9,7 +9,7 @@ class CarController extends Controller
 {
     public function index()
     {
-        $cars = Car::with('user')->get(); // Chargez les voitures avec les informations de l'utilisateur
+        $cars = Car::with('driver')->get(); // Changé de 'user' à 'driver'
         return view('cars.index', compact('cars'));
     }
 
@@ -29,7 +29,15 @@ class CarController extends Controller
             'license_plate' => 'required',
         ]);
 
-        Car::create($request->all());
+        $car = Car::create($request->all());
+
+        // Mettre à jour le modèle et la plaque d'immatriculation du conducteur
+        $driver = Driver::findOrFail($request->driver_id);
+        $driver->update([
+            'model' => $request->model,
+            'license_plate' => $request->license_plate
+        ]);
+
         return redirect()->route('cars.index')->with('success', 'Car created successfully.');
     }
 
@@ -40,14 +48,14 @@ class CarController extends Controller
 
     public function edit(Car $car)
     {
-        $users = User::all(); // Récupérez tous les utilisateurs pour les passer à la vue
-        return view('cars.edit', compact('car', 'users'));
+        $drivers = Driver::all(); // Changé de User::all() à Driver::all()
+        return view('cars.edit', compact('car', 'drivers'));
     }
 
     public function update(Request $request, Car $car)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'driver_id' => 'required|exists:drivers,id', // Changé de user_id à driver_id
             'make' => 'required',
             'model' => 'required',
             'year' => 'required|integer',

@@ -49,7 +49,6 @@
                                     <label for="status"><i class="fas fa-toggle-on"></i> Statut</label>
                                     <select class="form-control @error('status') is-invalid @enderror" id="status" name="status">
                                         <option value="disponible" {{ $driver->status == 'disponible' ? 'selected' : '' }}>Disponible</option>
-                                        <option value="occupé" {{ $driver->status == 'occupé' ? 'selected' : '' }}>Occupé</option>
                                         <option value="en mission" {{ $driver->status == 'en mission' ? 'selected' : '' }}>En mission</option>
                                     </select>
                                     @error('status')

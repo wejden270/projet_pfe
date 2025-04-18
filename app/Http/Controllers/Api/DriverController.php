@@ -330,7 +330,7 @@ public function destroy($id)
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:drivers,email,' . $id,
             'phone' => 'nullable|string|max:20|unique:drivers,phone,' . $id,
-            'status' => 'required|in:disponible,occupé,en mission',
+            'status' => 'required|in:disponible,en mission',
             'model' => 'nullable|string|max:255',
             'license_plate' => 'nullable|string|max:255'
         ]);

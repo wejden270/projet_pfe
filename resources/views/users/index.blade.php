@@ -10,7 +10,7 @@
             <h2>Users List</h2>
             <div>
                 <a href="/index.html" class="btn btn-secondary mr-2">
-                    <i class="fas fa-home"></i> Main Dashboard
+                    <i class="fas fa-home"></i> Home
                 </a>
                 <a href="{{ route('users.create') }}" class="btn btn-primary">Add User</a>
             </div>

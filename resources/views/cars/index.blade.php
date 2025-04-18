@@ -10,7 +10,7 @@
             <h2>Cars List</h2>
             <div>
                 <a href="/index.html" class="btn btn-secondary mr-2">
-                    <i class="fas fa-home"></i> Main Dashboard
+                    <i class="fas fa-home"></i> Home
                 </a>
                 <a href="{{ route('cars.create') }}" class="btn btn-primary">Add Car</a>
             </div>
@@ -18,7 +18,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>User</th>
+                    <th>Driver</th>
                     <th>Make</th>
                     <th>Model</th>
                     <th>Year</th>
@@ -29,7 +29,7 @@
             <tbody>
                 @forelse($cars as $car)
                     <tr>
-                        <td>{{ $car->user ? $car->user->name : 'N/A' }}</td>
+                        <td>{{ $car->driver ? $car->driver->name : 'N/A' }}</td>
                         <td>{{ $car->make }}</td>
                         <td>{{ $car->model }}</td>
                         <td>{{ $car->year }}</td>

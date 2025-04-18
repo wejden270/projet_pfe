@@ -13,7 +13,7 @@
             <h2>Drivers List</h2>
             <div>
                 <a href="/index.html" class="btn btn-secondary mr-2">
-                    <i class="fas fa-home"></i> Main Dashboard
+                    <i class="fas fa-home"></i> Home
                 </a>
                 <a href="{{ route('drivers.create') }}" class="btn btn-primary">Add Driver</a>
             </div>
@@ -33,22 +33,22 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
-                    <th>Model</th>  <!-- Nouvelle colonne -->
-                    <th>License Plate</th>  <!-- Nouvelle colonne -->
+                    <th>Vehicle Model</th>
+                    <th>License Plate</th>
                     <th>Date Created</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="drivers-table-body">
+            <tbody>
                 @foreach($drivers as $driver)
                 <tr>
                     <td>{{ $driver->id }}</td>
                     <td>{{ $driver->name }}</td>
                     <td>{{ $driver->email }}</td>
-                    <td>{{ $driver->phone ? $driver->phone : 'Non renseigné' }}</td>
-                    <td>{{ $driver->model ? $driver->model : 'Non spécifié' }}</td>  <!-- Nouvelle cellule -->
-                    <td>{{ $driver->license_plate ? $driver->license_plate : 'Non spécifié' }}</td>  <!-- Nouvelle cellule -->
-                    <td>{{ $driver->created_at ? $driver->created_at->format('d/m/Y') : '' }}</td>
+                    <td>{{ $driver->phone }}</td>
+                    <td>{{ $driver->model ?? 'Non assigné' }}</td>
+                    <td>{{ $driver->license_plate ?? 'Non assigné' }}</td>
+                    <td>{{ $driver->created_at->format('d/m/Y') }}</td>
                     <td>
                         <a href="/drivers/{{ $driver->id }}" class="btn btn-info">View</a>
                         <a href="/drivers/{{ $driver->id }}/edit" class="btn btn-warning">Edit</a>

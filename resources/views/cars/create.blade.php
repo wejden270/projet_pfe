@@ -24,12 +24,12 @@
                 @enderror
             </div>
             <div class="form-group">
-                <label for="make">Make</label>
-                <input type="text" class="form-control" id="make" name="make" required>
+                <label for="make"><i class="fas fa-car"></i> Marque</label>
+                <input type="text" class="form-control" id="make" name="make" placeholder="Ex: Toyota, Renault, Peugeot..." required>
             </div>
             <div class="form-group">
-                <label for="model">Model</label>
-                <input type="text" class="form-control" id="model" name="model" required>
+                <label for="model"><i class="fas fa-car"></i> Modèle</label>
+                <input type="text" class="form-control" id="model" name="model" placeholder="Ex: Corolla, Clio, 208..." required>
             </div>
             <div class="form-group">
                 <label for="year">Year</label>

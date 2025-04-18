@@ -10,7 +10,7 @@
             <h2>Incidents List</h2>
             <div>
                 <a href="/index.html" class="btn btn-secondary mr-2">
-                    <i class="fas fa-home"></i> Main Dashboard
+                    <i class="fas fa-home"></i> Home
                 </a>
                 <a href="{{ route('incidents.create') }}" class="btn btn-primary">Add Incident</a>
             </div>
