@@ -48,4 +48,8 @@ return [
         'password_client_secret' => env('PASSPORT_PASSWORD_CLIENT_SECRET'),
     ],
 
+    'fcm' => [
+        'server_key' => env('FCM_SERVER_KEY'),
+    ],
+
 ];

@@ -25,7 +25,8 @@ class Driver extends Authenticatable
         'longitude',
         'status',
         'model',          // Type de véhicule du chauffeur
-        'license_plate'   // Numéro d'immatriculation du véhicule
+        'license_plate',  // Numéro d'immatriculation du véhicule
+        'fcm_token'       // Assurez-vous que fcm_token est bien ici
     ];
 
     protected $hidden = [

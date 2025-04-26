@@ -4,15 +4,23 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Driver;
+use App\Models\User;  // Ajout de l'import manquant
 use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
-
+use App\Services\FCMService;
 
 class DriverController extends Controller
 {
+    protected $fcmService;
+
+    public function __construct(FCMService $fcmService)
+    {
+        $this->fcmService = $fcmService;
+    }
+
     // ✅ Afficher la liste des chauffeurs
     public function index(Request $request)
     {
@@ -167,6 +175,7 @@ public function destroy($id)
         ]);
 
         $driver = Driver::find($request->driver_id);
+        $client = auth()->user();
 
         if (!$driver || $driver->status !== 'disponible') {
             return response()->json([
@@ -179,8 +188,24 @@ public function destroy($id)
             'client_latitude' => $request->client_latitude,
             'client_longitude' => $request->client_longitude,
             'driver_id' => $driver->id,
+            'client_id' => $client->id,
             'status' => 'en attente'
         ]);
+
+        // Envoyer notification au chauffeur
+        if ($driver->fcm_token) {
+            $this->fcmService->sendNotificationToDriver(
+                $driver->fcm_token,
+                'Nouvelle demande de service',
+                'Un client a besoin de vos services',
+                [
+                    'request_id' => $serviceRequest->id,
+                    'type' => 'new_request',
+                    'client_latitude' => $request->client_latitude,
+                    'client_longitude' => $request->client_longitude
+                ]
+            );
+        }
 
         $driver->update(['status' => 'occupé']);
 
@@ -201,6 +226,7 @@ public function destroy($id)
 
         $serviceRequest = ServiceRequest::find($request->request_id);
         $driver = Auth::user();
+        $client = User::find($serviceRequest->client_id);
 
         if (!$driver || !$driver instanceof Driver || $driver->id !== $serviceRequest->driver_id) {
             return response()->json(['error' => 'Non autorisé'], 403);
@@ -209,9 +235,27 @@ public function destroy($id)
         if ($request->response === 'accept') {
             $serviceRequest->update(['status' => 'accepté']);
             $driver->update(['status' => 'en mission']);
+            $title = 'Demande acceptée';
+            $message = 'Le chauffeur a accepté votre demande';
         } else {
             $serviceRequest->update(['status' => 'refusé']);
             $driver->update(['status' => 'disponible']);
+            $title = 'Demande refusée';
+            $message = 'Le chauffeur a refusé votre demande';
+        }
+
+        // Envoyer notification au client
+        if ($client->fcm_token) {
+            $this->fcmService->sendNotificationToClient(
+                $client->fcm_token,
+                $title,
+                $message,
+                [
+                    'request_id' => $serviceRequest->id,
+                    'type' => 'request_response',
+                    'status' => $request->response
+                ]
+            );
         }
 
         return response()->json([
@@ -339,5 +383,59 @@ public function destroy($id)
 
         return redirect()->route('drivers.index')
             ->with('success', 'Chauffeur mis à jour avec succès');
+    }
+
+    /**
+     * Stocke le FCM token pour un chauffeur
+     */
+    public function storeFcmToken(Request $request)
+    {
+        \Log::info('Tentative de stockage FCM token:', [
+            'request_data' => $request->all()
+        ]);
+
+        try {
+            $validated = $request->validate([
+                'driver_id' => 'required|exists:drivers,id',
+                'fcm_token' => 'required|string'
+            ]);
+
+            $driver = Driver::findOrFail($validated['driver_id']);
+
+            \Log::info('Avant mise à jour:', [
+                'driver_id' => $driver->id,
+                'old_token' => $driver->fcm_token,
+                'new_token' => $validated['fcm_token']
+            ]);
+
+            $driver->fcm_token = $validated['fcm_token'];
+            $driver->save();
+
+            \Log::info('Après mise à jour:', [
+                'driver_id' => $driver->id,
+                'new_token' => $driver->fcm_token
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'FCM Token stocké avec succès',
+                'data' => [
+                    'driver_id' => $driver->id,
+                    'fcm_token' => $driver->fcm_token
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur stockage FCM token:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du stockage du FCM token',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -123,4 +123,39 @@ class AuthController extends Controller
             return response()->json(['message' => 'Erreur lors de la déconnexion', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Met à jour le token FCM de l'utilisateur
+     */
+    public function updateFcmToken(Request $request)
+    {
+        \Log::info('Requête updateFcmToken (Client)', [
+            'request_data' => $request->all()
+        ]);
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'fcm_token' => 'required|string'
+        ]);
+
+        try {
+            $user = User::findOrFail($request->user_id);
+            $oldToken = $user->fcm_token;
+            $user->update(['fcm_token' => $request->fcm_token]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Token FCM mis à jour avec succès',
+                'old_token' => $oldToken,
+                'new_token' => $request->fcm_token
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Erreur mise à jour FCM token: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erreur lors de la mise à jour du token',
+                'debug' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

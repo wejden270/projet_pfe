@@ -126,4 +126,23 @@ class DriverAuthController extends Controller
             return response()->json(['message' => 'Erreur lors de la déconnexion', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function updateFcmToken(Request $request)
+    {
+        $request->validate([
+            'driver_id' => 'required|exists:drivers,id',
+            'fcm_token' => 'required|string',
+        ]);
+
+        $driver = Driver::find($request->driver_id);
+
+        if (!$driver) {
+            return response()->json(['message' => 'Chauffeur introuvable'], 404);
+        }
+
+        $driver->fcm_token = $request->fcm_token;
+        $driver->save();
+
+        return response()->json(['message' => 'FCM Token mis à jour avec succès']);
+}
 }

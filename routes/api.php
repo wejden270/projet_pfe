@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\DriverController;
+use App\Http\Controllers\Api\DemandeController;  // Ajout de l'import
 use Illuminate\Http\Request;
 use App\Models\Driver; // Importation du modèle Driver
 
@@ -68,6 +69,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ✅ Route pour obtenir les chauffeurs à proximité
     Route::get('/drivers/nearby', [DriverController::class, 'getNearbyDrivers'])->name('api.drivers.nearby');
+
+    // Routes pour la mise à jour des tokens FCM
+    Route::post('/fcm/token/update', [AuthController::class, 'updateFcmToken']);
+    Route::post('/driver/fcm/token/update', [DriverAuthController::class, 'updateFcmToken']);
 });
 Route::get('/w/nearby', [DriverController::class, 'getNearbyDrivers'])->name('api.drivers.nearbyw');
 
@@ -94,3 +99,17 @@ Route::post('/getChauffeursProches', [DriverController::class, 'getNearbyDrivers
 Route::get('/drivers', [DriverController::class, 'index'])->name('api.drivers.index');
 //route public pour supprimer un chauffeur
 Route::delete('/drivers/{id}', [DriverController::class, 'destroy'])->name('api.drivers.destroy');
+
+// Routes publiques pour la mise à jour des tokens FCM
+Route::post('/user/fcm/token', [AuthController::class, 'updateFcmToken']);
+Route::post('/driver/fcm/token', [DriverAuthController::class, 'updateFcmToken']);
+
+// Routes publiques pour FCM tokens
+Route::post('/store-fcm-token', [DriverController::class, 'storeFcmToken']);
+
+// Routes publiques pour les demandes (sans authentification)
+Route::get('/demandes', [DemandeController::class, 'index'])->name('api.demandes.index');
+Route::post('/demandes', [DemandeController::class, 'store'])->name('api.demandes.store');
+Route::get('/demandes/{id}', [DemandeController::class, 'show'])->name('api.demandes.show');
+Route::put('/demandes/{id}', [DemandeController::class, 'update'])->name('api.demandes.update');
+Route::delete('/demandes/{id}', [DemandeController::class, 'destroy'])->name('api.demandes.destroy');

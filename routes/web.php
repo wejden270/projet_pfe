@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\DriverController; // Mise à jour du namespace
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DriverAuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DemandeController;
 
 // Route par défaut pour rediriger vers la page de connexion admin
 Route::get('/', function () {
@@ -40,7 +41,14 @@ Route::middleware('auth:admin')->group(function () {
     Route::resource('locations', LocationController::class); // Route pour LocationController
     Route::resource('users', UserController::class);
     Route::resource('drivers', DriverController::class); // Route pour DriverController
+    Route::resource('demandes', DemandeController::class); // Ajout de la nouvelle route
 });
+
+// Routes publiques pour les demandes (sans authentification)
+// Route::get('/demandes', [DemandeController::class, 'index'])->name('demandes.index');
+// Route::get('/demandes/{id}', [DemandeController::class, 'show'])->name('demandes.show');
+// Route::get('/demandes/{id}/edit', [DemandeController::class, 'edit'])->name('demandes.edit');
+// Route::put('/demandes/{id}', [DemandeController::class, 'update'])->name('demandes.update');
 
 // Route pour la page d'accueil après connexion
 Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth:admin');
