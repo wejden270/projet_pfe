@@ -28,6 +28,8 @@ class DemandeController extends Controller
             $request->validate([
                 'client_id' => 'required|exists:users,id',
                 'chauffeur_id' => 'required|exists:drivers,id',
+                'client_latitude' => 'required|numeric',
+                'client_longitude' => 'required|numeric',
             ]);
 
             // Vérifier si le chauffeur est disponible
@@ -42,11 +44,10 @@ class DemandeController extends Controller
             $demande = Demande::create([
                 'client_id' => $request->client_id,
                 'chauffeur_id' => $request->chauffeur_id,
+                'client_latitude' => $request->client_latitude,
+                'client_longitude' => $request->client_longitude,
                 'status' => 'en_attente'
             ]);
-
-            // Mettre à jour le statut du chauffeur
-            // $chauffeur->update(['status' => 'occupé']);
 
             return response()->json([
                 'status' => 'success',
@@ -67,6 +68,7 @@ class DemandeController extends Controller
             ], 500);
         }
     }
+
 
     public function show($id)
     {

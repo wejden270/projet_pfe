@@ -12,7 +12,9 @@ class Demande extends Model
     protected $fillable = [
         'client_id',
         'chauffeur_id',
-        'status'
+        'status',
+        'client_latitude',
+        'client_longitude',
     ];
 
     protected $casts = [
