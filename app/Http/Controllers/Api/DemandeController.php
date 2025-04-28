@@ -92,7 +92,7 @@ class DemandeController extends Controller
             $demande = Demande::findOrFail($id);
 
             $request->validate([
-                'status' => 'required|in:en_attente,acceptee,refusee'
+                'status' => 'required|in:en_attente,acceptee,refusee,annulee'
             ]);
 
             $demande->update([
@@ -125,4 +125,77 @@ class DemandeController extends Controller
             ], 500);
         }
     }
+    public function getClientDemandes($clientId)
+{
+    try {
+        $demandes = Demande::with(['client', 'chauffeur'])
+            ->where('client_id', $clientId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $demandes
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Erreur récupération demandes client:', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Erreur lors de la récupération des demandes'
+        ], 500);
+    }
+}
+public function cancelDemande($client_id, $demande_id)
+{
+    try {
+        Log::info('Tentative d\'annulation:', ['client_id' => $client_id, 'demande_id' => $demande_id]);
+
+        $demande = Demande::where('id', $demande_id)
+                         ->where('client_id', $client_id)
+                         ->first();
+
+        if (!$demande) {
+            Log::warning('Demande non trouvée:', ['client_id' => $client_id, 'demande_id' => $demande_id]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Demande non trouvée ou non autorisée',
+                'details' => 'Aucune demande trouvée avec ces identifiants'
+            ], 404);
+        }
+
+        if ($demande->status !== 'en_attente') {
+            Log::warning('Tentative d\'annulation invalide:', ['status' => $demande->status]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Impossible d\'annuler cette demande',
+                'details' => 'La demande doit être en attente pour pouvoir être annulée. Statut actuel: ' . $demande->status
+            ], 400);
+        }
+
+        // Mise à jour du statut via la méthode update
+        $request = new Request();
+        $request->merge(['status' => 'annulee']);
+        return $this->update($request, $demande_id);
+
+    } catch (\Exception $e) {
+        Log::error('Erreur annulation demande:', [
+            'client_id' => $client_id,
+            'demande_id' => $demande_id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Erreur lors de l\'annulation de la demande',
+            'details' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
 }

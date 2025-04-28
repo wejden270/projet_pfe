@@ -113,3 +113,6 @@ Route::post('/demandes', [DemandeController::class, 'store'])->name('api.demande
 Route::get('/demandes/{id}', [DemandeController::class, 'show'])->name('api.demandes.show');
 Route::put('/demandes/{id}', [DemandeController::class, 'update'])->name('api.demandes.update');
 Route::delete('/demandes/{id}', [DemandeController::class, 'destroy'])->name('api.demandes.destroy');
+// 🟢 Route publique pour récupérer les demandes d'un client précis
+Route::get('/client/{client_id}/demandes', [DemandeController::class, 'getClientDemandes'])->name('api.client.demandes');
+Route::post('/client/{client_id}/demandes/{demande_id}/cancel', [DemandeController::class, 'cancelDemande'])->name('api.client.demandes.cancel');
