@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\DriverController;
 use App\Http\Controllers\Api\DemandeController;  // Ajout de l'import
 use Illuminate\Http\Request;
 use App\Models\Driver; // Importation du modèle Driver
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,3 +117,5 @@ Route::delete('/demandes/{id}', [DemandeController::class, 'destroy'])->name('ap
 // 🟢 Route publique pour récupérer les demandes d'un client précis
 Route::get('/client/{client_id}/demandes', [DemandeController::class, 'getClientDemandes'])->name('api.client.demandes');
 Route::post('/client/{client_id}/demandes/{demande_id}/cancel', [DemandeController::class, 'cancelDemande'])->name('api.client.demandes.cancel');
+//route publique pour récupérer un mot e masse oblier
+Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
