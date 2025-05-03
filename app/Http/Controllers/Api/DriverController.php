@@ -287,6 +287,30 @@ public function destroy($id)
         ]);
     }
 
+    public function updateStatusPublic(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:disponible,en mission',
+        ]);
+
+        $driver = Driver::find($id);
+
+        if (!$driver) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Chauffeur non trouvé'
+            ], 404);
+        }
+
+        $driver->update(['status' => $request->status]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Statut mis à jour avec succès',
+            'data' => $driver
+        ]);
+    }
+
     // ✅ Récupérer le profil du chauffeur connecté
     public function profile($id)
     {

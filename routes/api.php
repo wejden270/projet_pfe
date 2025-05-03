@@ -119,3 +119,6 @@ Route::get('/client/{client_id}/demandes', [DemandeController::class, 'getClient
 Route::post('/client/{client_id}/demandes/{demande_id}/cancel', [DemandeController::class, 'cancelDemande'])->name('api.client.demandes.cancel');
 //route publique pour récupérer un mot e masse oblier
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+
+// Route publique pour mettre à jour le statut d'un chauffeur
+Route::post('/driver/{id}/update-status', [DriverController::class, 'updateStatusPublic'])->name('api.driver.updateStatus.public');
