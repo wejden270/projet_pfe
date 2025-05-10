@@ -74,4 +74,18 @@ class UserController extends Controller
         $user->delete();
         return response()->json(null, 204);
     }
+
+    public function storeFcmToken(Request $request, $user_id)
+    {
+        $user = User::find($user_id);
+
+        if (!$user) {
+            return response()->json(['error' => 'Utilisateur non trouvé'], 404);
+        }
+
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
+
+        return response()->json(['message' => 'Token FCM mis à jour avec succès']);
+    }
 }

@@ -20,14 +20,15 @@ class TokenController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
-    
+
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-    
+
         $user = Auth::user();
         $token = $user->createToken('Personal Access Token')->accessToken;
-    
+
         return response()->json(['token' => $token]);
     }
+
 }

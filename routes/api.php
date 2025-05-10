@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\DemandeController;  // Ajout de l'import
 use Illuminate\Http\Request;
 use App\Models\Driver; // Importation du modèle Driver
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\TokenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,12 +102,9 @@ Route::get('/drivers', [DriverController::class, 'index'])->name('api.drivers.in
 //route public pour supprimer un chauffeur
 Route::delete('/drivers/{id}', [DriverController::class, 'destroy'])->name('api.drivers.destroy');
 
-// Routes publiques pour la mise à jour des tokens FCM
-Route::post('/user/fcm/token', [AuthController::class, 'updateFcmToken']);
-Route::post('/driver/fcm/token', [DriverAuthController::class, 'updateFcmToken']);
-
-// Routes publiques pour FCM tokens
-Route::post('/store-fcm-token', [DriverController::class, 'storeFcmToken']);
+// Routes FCM pour les chauffeurs et clients
+Route::post('/driver/{driver_id}/fcm-token', [DriverController::class, 'storeFcmToken'])->name('api.driver.fcmToken');
+Route::post('/user/{user_id}/fcm-token', [UserController::class, 'storeFcmToken'])->name('api.user.fcmToken');
 
 // Routes publiques pour les demandes (sans authentification)
 Route::get('/demandes', [DemandeController::class, 'index'])->name('api.demandes.index');
@@ -120,5 +118,9 @@ Route::post('/client/{client_id}/demandes/{demande_id}/cancel', [DemandeControll
 //route publique pour récupérer un mot e masse oblier
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 
+// Routes pour gérer les FCM tokens des clients
+Route::post('/client/{client_id}/fcm-token', [AuthController::class, 'storeFcmToken'])->name('api.client.fcmToken');
+
 // Route publique pour mettre à jour le statut d'un chauffeur
 Route::post('/driver/{id}/update-status', [DriverController::class, 'updateStatusPublic'])->name('api.driver.updateStatus.public');
+

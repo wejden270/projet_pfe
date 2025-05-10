@@ -13,7 +13,11 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
-        'name', 'email', 'password', 'phone',
+        'name',
+        'email',
+        'password',
+        'phone',
+        'fcm_token', // Ajout du champ fcm_token
     ];
 
     protected $hidden = [

@@ -412,37 +412,27 @@ public function destroy($id)
     /**
      * Stocke le FCM token pour un chauffeur
      */
-    public function storeFcmToken(Request $request)
+    public function storeFcmToken(Request $request, $driver_id)
     {
-        \Log::info('Tentative de stockage FCM token:', [
-            'request_data' => $request->all()
-        ]);
-
         try {
             $validated = $request->validate([
-                'driver_id' => 'required|exists:drivers,id',
                 'fcm_token' => 'required|string'
             ]);
 
-            $driver = Driver::findOrFail($validated['driver_id']);
+            $driver = Driver::findOrFail($driver_id);
 
-            \Log::info('Avant mise à jour:', [
-                'driver_id' => $driver->id,
-                'old_token' => $driver->fcm_token,
-                'new_token' => $validated['fcm_token']
+            \Log::info('Mise à jour FCM token:', [
+                'driver_id' => $driver_id,
+                'token' => $validated['fcm_token']
             ]);
 
-            $driver->fcm_token = $validated['fcm_token'];
-            $driver->save();
-
-            \Log::info('Après mise à jour:', [
-                'driver_id' => $driver->id,
-                'new_token' => $driver->fcm_token
+            $driver->update([
+                'fcm_token' => $validated['fcm_token']
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'FCM Token stocké avec succès',
+                'message' => 'FCM Token mis à jour avec succès',
                 'data' => [
                     'driver_id' => $driver->id,
                     'fcm_token' => $driver->fcm_token
@@ -450,16 +440,30 @@ public function destroy($id)
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Erreur stockage FCM token:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            \Log::error('Erreur mise à jour FCM token:', [
+                'error' => $e->getMessage()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors du stockage du FCM token',
+                'message' => 'Erreur lors de la mise à jour du FCM token',
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function updateFcmToken(Request $request)
+    {
+        $validated = $request->validate([
+            'driver_id' => 'required|exists:drivers,id',
+            'fcm_token' => 'required|string'
+        ]);
+
+        $driver = Driver::findOrFail($validated['driver_id']);
+        $driver->update(['fcm_token' => $validated['fcm_token']]);
+
+        return response()->json([
+            'message' => 'FCM Token mis à jour avec succès'
+        ], 200);
     }
 }

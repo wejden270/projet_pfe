@@ -8,57 +8,33 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    /**
-     * Inscription d'un utilisateur
-     */
     public function register(Request $request)
     {
-        // 🔹 Validation des données
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:6|confirmed', // 'confirmed' nécessite un champ 'password_confirmation'
+        $request->validate([
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:8',
+            'fcm_token' => 'required|string'
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
+        $user = User::create([
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'fcm_token' => $request->fcm_token,
+            'name' => explode('@', $request->email)[0] // Utilise la partie avant @ comme nom par défaut
+        ]);
 
-        try {
-            DB::beginTransaction(); // Démarrer une transaction
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-            // 🔹 Création de l'utilisateur avec hashage du mot de passe
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
-
-            // 🔹 Vérifier si l'utilisateur a bien été créé
-            if (!$user) {
-                DB::rollBack();
-                return response()->json(['message' => 'Échec de l\'inscription.'], 500);
-            }
-
-            // 🔹 Création du token pour l'utilisateur
-            $token = $user->createToken('authToken')->plainTextToken;
-
-            DB::commit(); // Valider la transaction
-
-            return response()->json([
-                'message' => 'Inscription réussie',
-                'user' => $user,
-                'token' => $token
-            ], 201);
-        } catch (\Exception $e) {
-            DB::rollBack(); // Annuler la transaction en cas d'erreur
-            Log::error('Erreur lors de l\'inscription : ' . $e->getMessage());
-
-            return response()->json(['message' => 'Erreur serveur', 'error' => $e->getMessage()], 500);
-        }
+        return response()->json([
+            'status' => 'success',
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'Bearer'
+        ], 201);
     }
 
     /**
@@ -66,43 +42,29 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // 🔹 Validation des données
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
-
-        // 🔹 Vérifier si l'utilisateur existe
+        // Rechercher l'utilisateur par email
         $user = User::where('email', $request->email)->first();
 
-        // 🔹 Si l'utilisateur n'existe pas ou si le mot de passe est incorrect
+        // Vérifier si l'utilisateur existe et si le mot de passe correspond
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Email ou mot de passe incorrect'], 401);
-        }
-
-        try {
-            // 🔹 Supprimer les anciens tokens pour éviter les doublons
-            $user->tokens->each(function ($token) {
-                $token->delete();
-            });
-
-            // 🔹 Générer un nouveau token API
-            $token = $user->createToken('authToken')->plainTextToken;
-
             return response()->json([
-                'message' => 'Connexion réussie',
-                'user' => $user,
-                'token' => $token
-            ], 200);
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de la connexion : ' . $e->getMessage());
-
-            return response()->json(['message' => 'Erreur lors de la génération du token', 'error' => $e->getMessage()], 500);
+                'message' => 'Invalid credentials'
+            ], 401);
         }
+
+        // Créer le token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+        ]);
     }
 
     /**
@@ -157,5 +119,19 @@ class AuthController extends Controller
                 'debug' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function storeFcmToken(Request $request, $client_id)
+    {
+        $user = User::find($client_id);
+
+        if (!$user) {
+            return response()->json(['error' => 'Utilisateur non trouvé'], 404);
+        }
+
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
+
+        return response()->json(['message' => 'Token FCM mis à jour avec succès']);
     }
 }

@@ -12,12 +12,8 @@ use App\Models\Driver;
 
 class DriverAuthController extends Controller
 {
-    /**
-     * Inscription d'un chauffeur
-     */
     public function register(Request $request)
     {
-        // 🔹 Validation des données
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:drivers,email',
@@ -27,7 +23,6 @@ class DriverAuthController extends Controller
             'license_plate' => 'nullable|string|max:255'
         ]);
 
-        // Retourner les erreurs de validation
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
@@ -35,15 +30,14 @@ class DriverAuthController extends Controller
         try {
             DB::beginTransaction();
 
-            // Création du chauffeur avec un statut par défaut "disponible"
             $driver = Driver::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone ?? null,
                 'password' => Hash::make($request->password),
-                'status' => 'disponible', // 🚗 Nouveau chauffeur démarre comme "disponible"
-                'model' => $request->model,           // Ajout du modèle du véhicule
-                'license_plate' => $request->license_plate  // Ajout de la plaque d'immatriculation
+                'status' => 'disponible',
+                'model' => $request->model,
+                'license_plate' => $request->license_plate
             ]);
 
             if (!$driver) {
@@ -51,7 +45,6 @@ class DriverAuthController extends Controller
                 return response()->json(['message' => 'Échec de l\'inscription.'], 500);
             }
 
-            // 🔹 Génération du token
             $token = $driver->createToken('authToken')->plainTextToken;
 
             DB::commit();
@@ -69,80 +62,94 @@ class DriverAuthController extends Controller
         }
     }
 
-    /**
-     * Connexion d'un chauffeur
-     */
     public function login(Request $request)
     {
-        // 🔹 Validation
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        // 🔹 Vérification des identifiants
-        $driver = Driver::where('email', $request->email)->first();
-
-        if (!$driver || !Hash::check($request->password, $driver->password)) {
-            return response()->json(['message' => 'Email ou mot de passe incorrect'], 401);
-        }
-
         try {
-            // 🔹 Suppression des anciens tokens
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string|email',
+                'password' => 'required|string',
+                'fcm_token' => 'required|string', // Rendre fcm_token obligatoire
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            $driver = Driver::where('email', $request->email)->first();
+
+            if (!$driver || !Hash::check($request->password, $driver->password)) {
+                return response()->json(['message' => 'Email ou mot de passe incorrect'], 401);
+            }
+
+            // Supprimer les anciens tokens
             $driver->tokens()->delete();
 
-            // 🔹 Génération d'un nouveau token
+            // Créer un nouveau token d'authentification
             $token = $driver->createToken('authToken')->plainTextToken;
+
+            // Mettre à jour le FCM token
+            $driver->fcm_token = $request->fcm_token;
+            $driver->save();
 
             return response()->json([
                 'message' => 'Connexion réussie',
-                'driver' => $driver,
+                'user' => $driver,
                 'token' => $token
-            ], 200);
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de la connexion du chauffeur : ' . $e->getMessage());
+            ]);
 
-            return response()->json(['message' => 'Erreur serveur', 'error' => $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            \Log::error('Erreur login driver: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Erreur lors de la connexion',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
-    /**
-     * Déconnexion du chauffeur
-     */
     public function logout(Request $request)
     {
         try {
-            // 🔹 Suppression des tokens de l'utilisateur actuel
             $request->user()->tokens()->delete();
-
             return response()->json(['message' => 'Déconnexion réussie'], 200);
         } catch (\Exception $e) {
             Log::error('Erreur lors de la déconnexion du chauffeur : ' . $e->getMessage());
-
             return response()->json(['message' => 'Erreur lors de la déconnexion', 'error' => $e->getMessage()], 500);
         }
     }
 
-    public function updateFcmToken(Request $request)
+    public function updateFcmToken(Request $request, $driver_id)
     {
-        $request->validate([
-            'driver_id' => 'required|exists:drivers,id',
-            'fcm_token' => 'required|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'fcm_token' => 'required|string'
+            ]);
 
-        $driver = Driver::find($request->driver_id);
+            $driver = Driver::findOrFail($driver_id);
+            $oldToken = $driver->fcm_token;
+            $driver->fcm_token = $validated['fcm_token'];
+            $driver->save();
 
-        if (!$driver) {
-            return response()->json(['message' => 'Chauffeur introuvable'], 404);
+            return response()->json([
+                'success' => true,
+                'message' => 'FCM Token mis à jour avec succès',
+                'data' => [
+                    'driver_id' => $driver->id,
+                    'old_token' => $oldToken,
+                    'new_token' => $driver->fcm_token
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Erreur mise à jour FCM token:', [
+                'error' => $e->getMessage(),
+                'driver_id' => $driver_id,
+                'fcm_token' => $request->fcm_token
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour du FCM token',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $driver->fcm_token = $request->fcm_token;
-        $driver->save();
-
-        return response()->json(['message' => 'FCM Token mis à jour avec succès']);
-}
+    }
 }
