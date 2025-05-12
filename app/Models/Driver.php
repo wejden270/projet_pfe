@@ -15,6 +15,10 @@ class Driver extends Authenticatable
 
     protected $table = 'drivers'; // Assurez-vous que votre table est bien définie
 
+    const STATUS_DISPONIBLE = 'disponible';
+    const STATUS_EN_MISSION = 'en_mission';
+    const STATUS_INDISPONIBLE = 'indisponible';
+
     protected $fillable = [
         'name',
         'email',

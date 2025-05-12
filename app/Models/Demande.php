@@ -9,6 +9,20 @@ class Demande extends Model
 {
     use HasFactory;
 
+    const STATUS_ACCEPTE = 'accepte';
+    const STATUS_EN_ATTENTE = 'en_attente';
+    const STATUS_ACCEPTEE = 'acceptee';
+    const STATUS_REFUSEE = 'refusee';
+    const STATUS_ANNULEE = 'annulee';
+
+    public static $statuses = [
+        self::STATUS_ACCEPTE,
+        self::STATUS_EN_ATTENTE,
+        self::STATUS_ACCEPTEE,
+        self::STATUS_REFUSEE,
+        self::STATUS_ANNULEE
+    ];
+
     protected $fillable = [
         'client_id',
         'chauffeur_id',
