@@ -466,4 +466,37 @@ public function destroy($id)
             'message' => 'FCM Token mis à jour avec succès'
         ], 200);
     }
+
+    public function updateLocationPublic(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
+            ]);
+
+            $driver = Driver::findOrFail($id);
+
+            $driver->update([
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Position mise à jour avec succès.',
+                'data' => [
+                    'driver_id' => $driver->id,
+                    'latitude' => $driver->latitude,
+                    'longitude' => $driver->longitude
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erreur lors de la mise à jour de la position',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

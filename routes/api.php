@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\Driver; // Importation du modèle Driver
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\TokenController;
+use App\Http\Controllers\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -124,6 +125,12 @@ Route::post('/client/{client_id}/fcm-token', [AuthController::class, 'storeFcmTo
 // Route publique pour mettre à jour le statut d'un chauffeur
 Route::post('/driver/{id}/update-status', [DriverController::class, 'updateStatusPublic'])->name('api.driver.updateStatus.public');
 
+// Route publique pour mettre à jour la position d'un chauffeur
+Route::post('/driver/{id}/update-location', [DriverController::class, 'updateLocationPublic']);
+
 // Route de test pour les notifications
 Route::post('/test-notification', [App\Http\Controllers\TestNotificationController::class, 'sendTest']);
-
+//route pour messagerie
+Route::post('/send-message-notification', [ChatController::class, 'sendMessageNotification']);
+Route::get('/messages', [ChatController::class, 'getMessages']);
+Route::post('/test-fcm', [ChatController::class, 'testFcm']);

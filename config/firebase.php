@@ -1,13 +1,8 @@
 <?php
 
 return [
-    'default' => env('FIREBASE_PROJECT', 'app'),
-    'projects' => [
-        'app' => [
-            'credentials' => storage_path('app/firebase/firebase-credentials.json'),
-            'database' => [
-                'url' => 'https://projet-ec820.firebaseio.com',
-            ],
-        ],
+    'credentials' => [
+        'file' => storage_path('app/firebase/firebase-credentials.json'),
     ],
+    'project_id' => env('FIREBASE_PROJECT_ID'),
 ];

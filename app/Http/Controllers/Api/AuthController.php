@@ -14,17 +14,18 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string|email|unique:users',
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'required|string|max:20',
             'password' => 'required|string|min:8',
-            'fcm_token' => 'required|string'
         ]);
 
         $user = User::create([
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'fcm_token' => $request->fcm_token,
-            'name' => explode('@', $request->email)[0] // Utilise la partie avant @ comme nom par défaut
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'phone' => $validatedData['phone'],
+            'password' => Hash::make($validatedData['password']),
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
