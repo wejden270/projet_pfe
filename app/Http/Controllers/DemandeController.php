@@ -127,7 +127,6 @@ class DemandeController extends Controller
             $driver = $demande->driver;
             $status = $request->status;
 
-            // Mise à jour du statut
             $demande->status = $status;
             $demande->save();
 
@@ -136,22 +135,55 @@ class DemandeController extends Controller
                 $driver->save();
             }
 
-            // Notification avec le même format que le test
-            if ($demande->user && $demande->user->fcm_token) {
-                $notificationResult = $this->firebaseService->sendPushNotification(
-                    $demande->user->fcm_token,
-                    'Mise à jour de votre demande',
-                    "Votre demande a été " . ($status === 'acceptee' ? 'acceptée' : 'refusée'),
-                    [
-                        'demande_id' => (string)$demande->id,
-                        'status' => $status,
-                        'type' => 'status_update',
-                        'screen' => 'demande_details'
-                    ]
-                );
-
-                Log::info('Notification result:', ['result' => $notificationResult]);
+            // Gestion des notifications selon le scénario
+            if ($status === 'annulee') {
+                // Notification au chauffeur si le client annule
+                if ($driver && $driver->fcm_token) {
+                    $notificationResult = $this->firebaseService->sendPushNotification(
+                        $driver->fcm_token,
+                        'Demande annulée',
+                        "Le client a annulé sa demande",
+                        [
+                            'demande_id' => (string)$demande->id,
+                            'status' => $status,
+                            'type' => 'status_update',
+                            'screen' => 'demande_details'
+                        ]
+                    );
+                }
+            } elseif ($status === 'refusee') {
+                // Notification au client si le chauffeur refuse
+                if ($demande->user && $demande->user->fcm_token) {
+                    $notificationResult = $this->firebaseService->sendPushNotification(
+                        $demande->user->fcm_token,
+                        'Demande refusée',
+                        "Le chauffeur a refusé votre demande",
+                        [
+                            'demande_id' => (string)$demande->id,
+                            'status' => $status,
+                            'type' => 'status_update',
+                            'screen' => 'demande_details'
+                        ]
+                    );
+                }
+            } elseif ($status === 'acceptee') {
+                // Notification au client si le chauffeur accepte
+                if ($demande->user && $demande->user->fcm_token) {
+                    $notificationResult = $this->firebaseService->sendPushNotification(
+                        $demande->user->fcm_token,
+                        'Demande acceptée',
+                        "Le chauffeur a accepté votre demande",
+                        [
+                            'demande_id' => (string)$demande->id,
+                            'status' => $status,
+                            'type' => 'status_update',
+                            'screen' => 'demande_details'
+                        ]
+                    );
+                }
             }
+
+            Log::info('Notification result:', ['result' => $notificationResult ?? null]);
 
             return response()->json([
                 'success' => true,
@@ -162,6 +194,36 @@ class DemandeController extends Controller
         } catch (\Exception $e) {
             Log::error('UpdateStatus error:', ['error' => $e->getMessage()]);
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getStats()
+    {
+        try {
+            $stats = [
+                'total_clients' => User::count(),
+                'total_drivers' => Driver::count(),
+                'total_demandes' => Demande::count(),
+                'demandes_par_status' => [
+                    'acceptees' => Demande::where('status', 'acceptee')->count(),
+                    'refusees' => Demande::where('status', 'refusee')->count(),
+                    'annulees' => Demande::where('status', 'annulee')->count(),
+                    'en_attente' => Demande::where('status', 'en_attente')->count()
+                ]
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $stats
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erreur récupération stats:', [
+                'error' => $e->getMessage()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des statistiques'
+            ], 500);
         }
     }
 }

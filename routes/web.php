@@ -57,3 +57,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ✅ Déconnexion chauffeur (publique)
 Route::post('/driver/logout', [DriverAuthController::class, 'logout'])->name('driver.logout');
+
+// Route pour les statistiques des demandes
+Route::get('/stats', [DemandeController::class, 'getStats'])->name('demandes.stats');
+
+// Route pour le tableau de bord admin
+Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
